@@ -1,0 +1,3 @@
+# Authentication and security — Yap
+
+Registration validates name, email, and password, then hashes the password with bcrypt (12 rounds). Login compares the submitted password to the selected hash and issues an eight-hour HS256 JWT. The User model excludes password hashes from ordinary queries; API responses contain only public user fields. Middleware verifies the token and checks that the account still exists. Frontend protected routes redirect unauthenticated users. Logout removes the session token. Both auth endpoints have rate limits. Keep `JWT_SECRET` in the backend environment and use HTTPS when deployed.
