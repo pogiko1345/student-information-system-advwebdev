@@ -1,0 +1,1 @@
+export default function StatCard({ title, value }) { return <div className="col-md-4"><div className="card p-4 h-100"><div className="text-muted">{title}</div><div className="display-5 fw-bold text-primary">{value}</div></div></div>; }
