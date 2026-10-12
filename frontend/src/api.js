@@ -6,4 +6,11 @@ api.interceptors.request.use(config => {
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
+api.interceptors.response.use(response => response, error => {
+  if (error.response?.status === 401 && sessionStorage.getItem('sis_token')) {
+    sessionStorage.removeItem('sis_token');
+    window.dispatchEvent(new Event('sis:session-expired'));
+  }
+  return Promise.reject(error);
+});
 export const errorMessage = error => error.response?.data?.message || 'Something went wrong. Please try again.';

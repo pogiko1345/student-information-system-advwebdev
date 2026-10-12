@@ -1,0 +1,55 @@
+import test, { before, after } from 'node:test';
+import assert from 'node:assert/strict';
+import request from 'supertest';
+import mongoose from 'mongoose';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import { app } from '../src/app.js';
+
+let mongo;
+before(async () => {
+  process.env.JWT_SECRET = 'test-only-jwt-secret-with-over-32-characters';
+  mongo = await MongoMemoryServer.create();
+  await mongoose.connect(mongo.getUri());
+});
+after(async () => { await mongoose.disconnect(); if (mongo) await mongo.stop(); });
+
+test('auth, protected student CRUD, search, pagination, dashboard and profile', async () => {
+  const guest = await request(app).get('/api/students');
+  assert.equal(guest.status, 401);
+  const registered = await request(app).post('/api/auth/register').send({ name: 'Test User', email: 'test@example.com', password: 'strongpass123' });
+  assert.equal(registered.status, 201);
+  assert.equal(registered.body.user.passwordHash, undefined);
+  const token = registered.body.token;
+  const auth = { Authorization: `Bearer ${token}` };
+  const login = await request(app).post('/api/auth/login').send({ email: 'test@example.com', password: 'strongpass123' });
+  assert.equal(login.status, 200);
+  assert.equal((await request(app).get('/api/auth/me').set(auth)).status, 200);
+  assert.equal((await request(app).get('/api/students').set('Authorization', 'Bearer invalid')).status, 401);
+  const invalid = await request(app).post('/api/students').set(auth).send({ studentId: '1' });
+  assert.equal(invalid.status, 400);
+  const first = await request(app).post('/api/students').set(auth).send({ studentId: 'S-001', fullName: 'Alice Santos', email: 'alice@example.com', course: 'BSIT', yearLevel: 2 });
+  assert.equal(first.status, 201);
+  const id = first.body.student._id;
+  const duplicate = await request(app).post('/api/students').set(auth).send({ studentId: 'S-001', fullName: 'Another Student', email: 'other@example.com', course: 'BSIT', yearLevel: 1 });
+  assert.equal(duplicate.status, 409);
+  const second = await request(app).post('/api/students').set(auth).send({ studentId: 'S-002', fullName: 'Bob Cruz', email: 'bob@example.com', course: 'BSCS', yearLevel: 1 });
+  assert.equal(second.status, 201);
+  const searched = await request(app).get('/api/students?search=alice&course=BSIT&yearLevel=2&page=1&limit=1').set(auth);
+  assert.equal(searched.status, 200);
+  assert.equal(searched.body.total, 1);
+  assert.equal(searched.body.students[0].studentId, 'S-001');
+  const page = await request(app).get('/api/students?page=2&limit=1').set(auth);
+  assert.equal(page.body.total, 2);
+  assert.equal(page.body.students.length, 1);
+  const updated = await request(app).put(`/api/students/${id}`).set(auth).send({ studentId: 'S-001', fullName: 'Alice Reyes', email: 'alice@example.com', course: 'BSIT', yearLevel: 3 });
+  assert.equal(updated.status, 200);
+  assert.equal((await request(app).get(`/api/students/${id}`).set(auth)).body.student.fullName, 'Alice Reyes');
+  const dashboard = await request(app).get('/api/dashboard').set(auth);
+  assert.equal(dashboard.body.totalStudents, 2);
+  assert.equal(dashboard.body.byCourse.length, 2);
+  const profile = await request(app).put('/api/profile').set(auth).send({ name: 'Updated User', email: 'hacker@example.com' });
+  assert.equal(profile.body.user.name, 'Updated User');
+  assert.equal(profile.body.user.email, 'test@example.com');
+  assert.equal((await request(app).delete(`/api/students/${id}`).set(auth)).status, 200);
+  assert.equal((await request(app).get(`/api/students/${id}`).set(auth)).status, 404);
+});

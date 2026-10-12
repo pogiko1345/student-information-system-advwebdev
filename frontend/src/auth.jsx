@@ -11,6 +11,7 @@ export function AuthProvider({ children }) {
     if (!sessionStorage.getItem('sis_token')) return;
     api.get('/auth/me').then(({ data }) => setUser(data.user)).catch(() => sessionStorage.removeItem('sis_token')).finally(() => setLoading(false));
   }, []);
+  useEffect(() => { const expired = () => setUser(null); window.addEventListener('sis:session-expired', expired); return () => window.removeEventListener('sis:session-expired', expired); }, []);
   const signIn = data => { sessionStorage.setItem('sis_token', data.token); setUser(data.user); };
   const signOut = () => { sessionStorage.removeItem('sis_token'); setUser(null); };
   return <AuthContext.Provider value={{ user, loading, signIn, signOut, setUser }}>{children}</AuthContext.Provider>;
