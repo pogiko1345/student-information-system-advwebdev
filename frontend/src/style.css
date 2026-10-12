@@ -4,3 +4,9 @@ body { min-height: 100vh; background: #f5f8fc; }
 .card { border: 0; border-radius: 1rem; box-shadow: 0 8px 30px #1b42600c; }
 .btn-primary { background: #1461a5; border-color: #1461a5; }
 .page-title { font-weight: 750; letter-spacing: -.035em; }
+.auth-card { border-top: 5px solid #f0bc2e; }
+.sis-brand { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem 1rem; }
+.sis-brand img { display: block; width: min(100%, 292px); height: auto; }
+.sis-brand__campus { color: #263b89; font-size: .75rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+.sis-brand--compact img { width: min(100%, 230px); }
+.auth-card__divider { height: 1px; background: #e5eaf2; margin: 1.5rem 0; }
