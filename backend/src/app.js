@@ -1,11 +1,15 @@
 import express from 'express';
 import cors from 'cors';
+import { dashboardRouter } from './routes/dashboard.js';
+import { profileRouter } from './routes/profile.js';
 
 export const app = express();
 app.disable('x-powered-by');
 app.use(cors({ origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173' }));
 app.use(express.json({ limit: '20kb' }));
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
+app.use('/api/dashboard', dashboardRouter);
+app.use('/api/profile', profileRouter);
 app.use((err, _req, res, _next) => {
   if (err instanceof SyntaxError && 'body' in err) return res.status(400).json({ message: 'Invalid JSON body' });
   console.error(err);
