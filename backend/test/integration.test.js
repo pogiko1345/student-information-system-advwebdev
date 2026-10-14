@@ -47,6 +47,8 @@ test('auth, protected student CRUD, search, pagination, dashboard and profile', 
   const dashboard = await request(app).get('/api/dashboard').set(auth);
   assert.equal(dashboard.body.totalStudents, 2);
   assert.equal(dashboard.body.byCourse.length, 2);
+  assert.equal(dashboard.body.recentStudents.length, 2);
+  assert.equal(dashboard.body.recentStudents[0].passwordHash, undefined);
   const profile = await request(app).put('/api/profile').set(auth).send({ name: 'Updated User', email: 'hacker@example.com' });
   assert.equal(profile.body.user.name, 'Updated User');
   assert.equal(profile.body.user.email, 'test@example.com');

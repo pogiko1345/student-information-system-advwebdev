@@ -8,7 +8,7 @@ All routes start with `/api` and use JSON. Protected routes require `Authorizati
 - `GET /students?search=&course=&yearLevel=&page=&limit=` -> `{ students, total, page, pages }`
 - `POST /students` and `PUT /students/:id` accept `{ studentId, fullName, email, course, yearLevel }`.
 - `GET /students/:id` -> `{ student }`; `DELETE /students/:id` -> `{ message }`.
-- `GET /dashboard` -> `{ totalStudents, byCourse, byYearLevel }`.
+- `GET /dashboard` -> `{ totalStudents, byCourse, byYearLevel, recentStudents }` (up to five newest students).
 - `GET /profile` -> `{ user }`; `PUT /profile` accepts `{ name }` -> `{ user }`.
 
 Student IDs and emails are unique. Year level is an integer from 1 to 6. The UI stores its JWT in session storage and discards it on logout.
