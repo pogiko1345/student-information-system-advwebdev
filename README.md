@@ -27,6 +27,8 @@ Node.js 20 or newer, npm, and MongoDB 7 or newer. A local MongoDB server or Mong
 
 The backend runs at `http://localhost:5000`. Run `npm test` for backend tests and a frontend production build. Do not commit `.env` files or real student information.
 
+For Vercel, deploy the `backend` and `frontend` directories as separate projects and set their production environment variables. See [docs/VERCEL_DEPLOYMENT.md](docs/VERCEL_DEPLOYMENT.md). The browser must call the deployed backend URL; `localhost:5000` works only for local development.
+
 ## Security and limits
 
 Passwords are hashed with bcrypt. API routes require an eight-hour JWT. Registration and login are rate limited, and input is validated on the server. Tokens are stored for the browser session and cleared on logout. All signed-in users can manage records; role-based authorization is outside this project's scope. Use HTTPS and a strong secret when deploying.

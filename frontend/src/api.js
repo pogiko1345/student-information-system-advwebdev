@@ -1,7 +1,9 @@
 import axios from 'axios';
 
-export const api = axios.create({ baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api' });
+const apiBaseURL = import.meta.env.VITE_API_URL?.trim() || (import.meta.env.DEV ? 'http://localhost:5000/api' : null);
+export const api = axios.create({ baseURL: apiBaseURL || undefined });
 api.interceptors.request.use(config => {
+  if (!apiBaseURL) throw new Error('Production API URL is not configured. Set VITE_API_URL in the frontend deployment.');
   const token = sessionStorage.getItem('sis_token');
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
@@ -13,4 +15,4 @@ api.interceptors.response.use(response => response, error => {
   }
   return Promise.reject(error);
 });
-export const errorMessage = error => error.response?.data?.message || 'Something went wrong. Please try again.';
+export const errorMessage = error => error.response?.data?.message || (error.message?.startsWith('Production API URL') ? error.message : 'Could not reach the API. Check that the backend is running and the API URL is correct.');
