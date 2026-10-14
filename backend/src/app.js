@@ -4,11 +4,25 @@ import { authRouter } from './routes/auth.js';
 import { studentRouter } from './routes/students.js';
 import { dashboardRouter } from './routes/dashboard.js';
 import { profileRouter } from './routes/profile.js';
+import { connectDatabase } from './db.js';
 
 export const app = express();
 app.disable('x-powered-by');
-app.use(cors({ origin: process.env.CLIENT_ORIGIN || 'https://student-information-system-advwebde.vercel.app/' }));
+app.use(cors({ origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173' }));
 app.use(express.json({ limit: '20kb' }));
+app.use('/api', async (_req, res, next) => {
+  if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32 || !process.env.MONGODB_URI) {
+    console.error('Backend configuration is incomplete: check JWT_SECRET and MONGODB_URI');
+    return res.status(503).json({ message: 'Backend configuration is incomplete' });
+  }
+  try {
+    await connectDatabase();
+    next();
+  } catch (error) {
+    console.error('MongoDB connection failed:', error);
+    res.status(503).json({ message: 'Database connection failed' });
+  }
+});
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 app.use('/api/auth', authRouter);
 app.use('/api/students', studentRouter);

@@ -9,7 +9,8 @@ let mongo;
 before(async () => {
   process.env.JWT_SECRET = 'test-only-jwt-secret-with-over-32-characters';
   mongo = await MongoMemoryServer.create();
-  await mongoose.connect(mongo.getUri());
+  process.env.MONGODB_URI = mongo.getUri();
+  await mongoose.connect(process.env.MONGODB_URI);
 });
 after(async () => { await mongoose.disconnect(); if (mongo) await mongo.stop(); });
 

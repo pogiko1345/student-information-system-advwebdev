@@ -14,6 +14,8 @@ Set these **Production** environment variables in the backend project:
 
 Deploy, then visit `https://your-backend.vercel.app/api/health`. It should return `{ "status": "ok" }`. Keep the secret values in Vercel project settings only.
 
+If health returns `503 Backend configuration is incomplete`, set both `MONGODB_URI` and `JWT_SECRET` in the **backend** Vercel project, then redeploy. If it returns `503 Database connection failed`, check the Atlas URI, database user credentials, and Atlas network access. The backend project's Vercel runtime logs contain the connection error. Do not paste the URI or JWT secret into a public issue or chat.
+
 ## 2. Frontend project
 
 Set **Root Directory** to `frontend`, Framework Preset to Vite, and keep the normal `npm run build` / `dist` output. `frontend/vercel.json` rewrites direct visits to `/login`, `/register`, and other React Router pages to `index.html`.
