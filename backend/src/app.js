@@ -7,7 +7,7 @@ import { profileRouter } from './routes/profile.js';
 
 export const app = express();
 app.disable('x-powered-by');
-app.use(cors({ origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173' }));
+app.use(cors({ origin: process.env.CLIENT_ORIGIN || 'https://student-information-system-advwebde.vercel.app/' }));
 app.use(express.json({ limit: '20kb' }));
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 app.use('/api/auth', authRouter);
