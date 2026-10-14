@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-const apiBaseURL = import.meta.env.VITE_API_URL?.trim() || (import.meta.env.DEV ? 'http://localhost:5000/api' : null);
+const configuredURL = import.meta.env.VITE_API_URL?.trim().replace(/\/+$/, '');
+const apiBaseURL = configuredURL
+  ? (configuredURL.endsWith('/api') ? configuredURL : `${configuredURL}/api`)
+  : (import.meta.env.DEV ? 'http://localhost:5000/api' : null);
 export const api = axios.create({ baseURL: apiBaseURL || undefined });
 api.interceptors.request.use(config => {
   if (!apiBaseURL) throw new Error('Production API URL is not configured. Set VITE_API_URL in the frontend deployment.');
